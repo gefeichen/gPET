@@ -113,10 +113,67 @@ Particle readParticle(char sourcefile[100],int NParticle)
     particle.NParticle = NParticle;       
     return particle;
 }
+
+Source readSource(char sourcefile[100], int* pdim, float* poffset, float* psize)
+{
+    int offsetx = poffset[0];
+    int offsety = poffset[1];
+    int offsetz = poffset[2];
+
+    int sizex = pdim[0]/psize[0];
+    int sizey = pdim[1]/psize[1];
+    int sizez = pdim[2]/psize[2];
+
+    int numvox=pdim[0]*pdim[1]*pdim[2];
+    int source[numvox];
+    ifstream infilemat(matfile,ios::binary);
+    FILEEXIST(infilemat);
+    infilemat.read(reinterpret_cast <char*> (&source[0]), sizeof(int)*numvox);
+    infilemat.close();
+
+    Source source;
+    source.NSource = count_activ(source, numvox);
+    source.natom=new unsigned int[source.NSource];
+    source.type=new int[source.NSource];
+    source.shape=new int[source.NSource];
+    source.shapecoeff=new float[source.NSource*6];
+    int j = 0;
+    for(int i=0;i<source.NSource;i++)
+    {
+        while(true){
+            if(source[j]==0)
+                j++;
+            else
+                break;
+        }
+        source.type[i] = 1;
+        source.shape[i] = 0;
+        source.natom[i] = source[j-1];
+        source.shapecoeff[i*6] = (offsetx+sizex/2) + sizex*(j%200);
+        source.shapecoeff[i*6+1] = (offsety+sizey/2) + sizey*((j%40000)/200);
+        source.shapecoeff[i*6+2] = (offsetz+sizez/2) + sizez*(j/40000);
+        source.shapecoeff[i*6+3] = sizex;
+        source.shapecoeff[i*6+4] = sizey;
+        source.shapecoeff[i*6+5] = sizez;
+        j++;
+    }//*/
+    printf("finish read: source;\n\n");        
+    infile.close();       
+    return source;
+}
+
+int count_activ(int source[], int size){
+    int count = 0;
+    for(int i=0; i<size; i++){
+        if(source[i]>0)
+            count++;
+    }
+    return count;
+}
+
 Source readSource(char sourcefile[100])
 {
     Source source;
-
     ifstream infile(sourcefile);
     FILEEXIST(infile);
     printf("reading %s\n", sourcefile);
@@ -136,11 +193,26 @@ Source readSource(char sourcefile[100])
             infile>>source.shapecoeff[6*i+j];
             cout<<" "<<source.shapecoeff[6*i+j];
         }
-        cout<<endl;        
+        cout<<endl;
     }//*/
-    printf("finish read: source;\n\n");        
-    infile.close();       
+    printf("finish read: source;\n\n");
+    infile.close();
     return source;
+}
+
+bool is_txt(char sourcefile[100]){
+    bool is_dot = false;
+    for(int i=0; i<100<i++){
+        if(sourcefile[i] != '.' && !is_dot)
+            continue;
+        else
+            is_dot = true;
+        if(sourcefile[i] == 't' && sourcefile[i+1] == 'x' && sourcefile[i+2] == 't')
+            return true;
+        else
+            return false;
+    }
+    return false;
 }
 
 void spline(float *X, float *Y, float *A, float *B, float *C, float *D, float S1, float SN, int N)

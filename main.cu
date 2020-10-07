@@ -224,7 +224,10 @@ int main(int argc, char *argv[])
     else
     {
         Isotopes isotopes= loadIsotopes();
-        Source source = readSource(sourcefile);
+        if(is_txt(sourcefile))
+            Source source = readSource(sourcefile);
+        else
+            Source source = readSource(sourcefile, pdim, poffset, psize);
         sampleParticle(source, isotopes, tstart, tend, total_Panels);
     }  
 
