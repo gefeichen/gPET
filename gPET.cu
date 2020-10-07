@@ -380,7 +380,7 @@ void sampleParticle(Source source, Isotopes isotopes, float tstart, float tend, 
         int counts=0;
         cudaMemcpy(&counts,counts_d,sizeof(int),cudaMemcpyDeviceToHost);
         cout<<"counts of events after adder is "<<counts<<endl;
-        outevents(&counts,events_d,"./output/adder.dat");
+        //outevents(&counts,events_d,"./output/adder.dat");
 
 //insert proper digitizer module in the following part
 //the module that can change the number of events should be followed by a sort

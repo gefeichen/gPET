@@ -89,6 +89,7 @@ typedef struct Event
     int parn,pann,modn,cryn,siten,eventid;//siten: the index in current depth
     double t;
     float E, x,y,z;
+    int RP, CP, RC, CC;
 } Event;
 
 struct compare_parn

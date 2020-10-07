@@ -5,6 +5,10 @@ extern __device__ float4 vx_gBrachy[NPART];
 extern __device__ float3 x_gBrachy[NPART];
 extern __device__ double d_time[NPART];
 extern __device__ int d_eventid[NPART];
+extern __device__ int RP[NPART];
+extern __device__ int CP[NPART];
+extern __device__ int RC[NPART];
+extern __device__ int CC[NPART];
 extern __device__ unsigned int d_curemitted;
 extern __constant__ int Nsurface_d, rdepth_d, rpolicy_d;
 //==========================================================

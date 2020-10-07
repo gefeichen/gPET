@@ -268,6 +268,8 @@ c******************************************************************/
         float3 xtemp = x_gBrachy[id];
         float4 vxtemp = vx_gBrachy[id];
         double tof = d_time[id];
+        int rp = 0;
+        int cp = 0;
         //if(id <5 ) printf("x=%f,y=%f,z=%f,t = %f, vx=%f,vy=%f,vz=%f,e=%f\n",xtemp.x,xtemp.y,xtemp.z,tof,vxtemp.x,vxtemp.y,vxtemp.z,vxtemp.w);
         if(vxtemp.w<0||tof<=0) {id+=blockDim.x*gridDim.x;continue;}
         //      Loop until it either escapes or is absorbed:
@@ -311,6 +313,7 @@ c******************************************************************/
             prob += lamden*icptip(voxmatid, vxtemp.w);
             if (randno < prob)
             {
+                cp++;
                 float efrac, costhe;
                 comsam(vxtemp.w, &localState, &efrac, &costhe, voxmatid);
 //              comsam(vxtemp.w, &localState, &efrac, &costhe);
@@ -326,6 +329,7 @@ c******************************************************************/
             prob += lamden*irylip(voxmatid, vxtemp.w);
             if (randno < prob)
             {
+                rp++;
                 float costhe;
                 rylsam(vxtemp.w, voxmatid, &localState, &costhe);
                 float phi = TWOPI*curand_uniform(&localState);
@@ -339,6 +343,8 @@ c******************************************************************/
         x_gBrachy[id] = xtemp;
         d_time[id] = tof;
         vx_gBrachy[id] = vxtemp;
+        CP[id] = cp;
+        RP[id] = rp;
         id+=blockDim.x*gridDim.x;
     }
     cuseed[id%NRAND] = localState;
@@ -852,6 +858,8 @@ c******************************************************************/
     Event events[4];
     int counts[2]= {0,4};
     Event event;
+    int rc = 0;
+    int cc = 0;
 
     float tempDen=0.0f;
     int tempMat=0;
@@ -954,6 +962,8 @@ c******************************************************************/
             float4 vxtemp = vx_gBrachy[id];
             double tof = d_time[id];
             int eid = d_eventid[id];
+            int rp = RP[id];
+            int cp = CP[id];
             
             // change global coordinates to local coordinates
             int paID=-1;
@@ -1072,7 +1082,10 @@ c******************************************************************/
                         event.pann=paID;
                         event.siten=event.pann*moduleN*crystalN+event.modn*crystalN+event.cryn;//maybe should use event.pann-1 or event.cryn-1 to make sure siten start from 0
                         event.eventid = eid;
-
+                        event.CP = cp;
+                        event.RP = rp;
+                        event.CC = 0;
+                        event.RC = rc;
                         sftemp[ind] = de;//s;
                         sftemp[ind+1] = tof;//s;s;//
                         sftemp[ind+2] = xtemp2.x;
@@ -1107,7 +1120,10 @@ c******************************************************************/
                             event.pann=paID;
                             event.siten=event.pann*moduleN*crystalN+event.modn*crystalN+event.cryn;
                             event.eventid = eid;
-
+                            event.CP = cp;
+                            event.RP = rp;
+                            event.CC = 0;
+                            event.RC = rc;
                             sftemp[ind] = vxtemp2.w;//s;
                             sftemp[ind+1] = tof;//s;s;//
                             sftemp[ind+2] = xtemp2.x;
@@ -1134,6 +1150,7 @@ c******************************************************************/
                 prob += lamden*irylip(tempMat, vxtemp2.w);
                 if (randno < prob)
                 {
+                    rc++;
                     float costhe;
                     rylsam(vxtemp2.w, tempMat, &localState, &costhe);
                     float phi = TWOPI*curand_uniform(&localState);
@@ -1180,6 +1197,10 @@ c******************************************************************/
                     event.pann=paID;
                     event.siten=event.pann*moduleN*crystalN+event.modn*crystalN+event.cryn;
                     event.eventid = eid;
+                    event.CP = cp;
+                    event.RP = rp;
+                    event.CC = 0;
+                    event.RC = rc;
                     event.E = vxtemp2.w;
                     event.t = tof;
                     event.x = xtemp2.x;

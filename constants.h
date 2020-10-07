@@ -1,9 +1,9 @@
 #ifndef __CONSTANTS__
 #define __CONSTANTS__
 
-#define RECORDPSF 1
-#define OUTPUTPSF 1
-#define OUTPUTHIT 1
+#define RECORDPSF 0
+#define OUTPUTPSF 0
+#define OUTPUTHIT 0
 #define RECORDRayleigh 0
 #define BISEARCH 0
 #define MAXMAT 10 //max number of materials

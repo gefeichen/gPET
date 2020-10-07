@@ -262,7 +262,10 @@ int main(int argc, char *argv[])
     cudaFree(x_gBrachy);
     cudaFree(vx_gBrachy);
     cudaFree(d_eventid);
-    cudaFree(d_time);
+    cudaFree(RP);
+    cudaFree(CP);
+    cudaFree(RC);
+    cudaFree(CC);
 /***************************************************/
     end_time = clock(); 
     time_diff = ((float)end_time - (float)start_time)/CLOCKS_PER_SEC;   
