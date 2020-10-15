@@ -125,14 +125,14 @@ Source readSource(char sourcefile[100], int* pdim, float* poffset, float* psize)
     int sizez = pdim[2]/psize[2];
 
     int numvox=pdim[0]*pdim[1]*pdim[2];
-    int source[numvox];
+    int sources[numvox];
     ifstream infilemat(matfile,ios::binary);
     FILEEXIST(infilemat);
-    infilemat.read(reinterpret_cast <char*> (&source[0]), sizeof(int)*numvox);
+    infilemat.read(reinterpret_cast <char*> (&sources[0]), sizeof(int)*numvox);
     infilemat.close();
 
     Source source;
-    source.NSource = count_activ(source, numvox);
+    source.NSource = count_activ(sources, numvox);
     source.natom=new unsigned int[source.NSource];
     source.type=new int[source.NSource];
     source.shape=new int[source.NSource];
@@ -141,17 +141,17 @@ Source readSource(char sourcefile[100], int* pdim, float* poffset, float* psize)
     for(int i=0;i<source.NSource;i++)
     {
         while(true){
-            if(source[j]==0)
+            if(sources[j]==0)
                 j++;
             else
                 break;
         }
         source.type[i] = 1;
         source.shape[i] = 0;
-        source.natom[i] = source[j-1];
-        source.shapecoeff[i*6] = (offsetx+sizex/2) + sizex*(j%200);
-        source.shapecoeff[i*6+1] = (offsety+sizey/2) + sizey*((j%40000)/200);
-        source.shapecoeff[i*6+2] = (offsetz+sizez/2) + sizez*(j/40000);
+        source.natom[i] = sources[j];
+        source.shapecoeff[i*6] = (offsetx+sizex/2) + sizex*(j%pdim[0]);
+        source.shapecoeff[i*6+1] = (offsety+sizey/2) + sizey*((j% (pdim[0]* pdim[1]))/pdim[0]);
+        source.shapecoeff[i*6+2] = (offsetz+sizez/2) + sizez*(j/(pdim[0]* pdim[1]));
         source.shapecoeff[i*6+3] = sizex;
         source.shapecoeff[i*6+4] = sizey;
         source.shapecoeff[i*6+5] = sizez;
